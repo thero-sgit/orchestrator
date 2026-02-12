@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate_ochestrator;
+package io.github.therosgit.resonate.ochestrator;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

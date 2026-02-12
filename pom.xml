@@ -8,8 +8,8 @@
 		<version>4.0.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>io.github.therosgit</groupId>
-	<artifactId>resonate-ochestrator</artifactId>
+	<groupId>io.github.therosgit.resonate</groupId>
+	<artifactId>ochestrator</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>resonate-ochestrator</name>
 	<description>Backend for the resonate project</description>
