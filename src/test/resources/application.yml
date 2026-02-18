@@ -1,0 +1,24 @@
+spring:
+  cloud:
+    aws:
+      region:
+        static: us-east-1
+      credentials:
+        access-key: noop
+        secret-key: noop
+
+
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:16-alpine:///rds_db
+    type: com.zaxxer.hikari.HikariDataSource
+
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+
+services:
+  rust:
+    base-url: http://rust-service:8081

@@ -4,6 +4,9 @@ import io.github.therosgit.resonate.ochestrator.storage.Storage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.localstack.LocalStackContainer;
@@ -18,15 +21,18 @@ import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers@SpringBootTest(properties = {
-        "spring.cloud.aws.region.static=us-east-1",
-        "spring.cloud.aws.credentials.access-key=noop",
-        "spring.cloud.aws.credentials.secret-key=noop"
-})
+@Testcontainers
+@ActiveProfiles("test")
+@SpringBootTest
 public class TestS3Integration {
     @Container
     static LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
             .withServices("s3");
+
+    @DynamicPropertySource
+    static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.cloud.aws.s3.endpoint", () -> localStackContainer.getEndpoint().toString());
+    }
 
     private S3Client s3Client;
 
