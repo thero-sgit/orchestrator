@@ -37,4 +37,21 @@ public class RdsIntegration {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, tableName);
         assertThat(count).as("Table 'fingerprints' should exist in schema 'public'").isGreaterThan(0);
     }
+
+    @Test
+    void songsTableExists() {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        String sql = """
+            SELECT count(*)\s
+            FROM information_schema.tables\s
+            WHERE table_schema = 'public'
+              AND table_name = ?
+       \s""";
+
+        String tableName = "songs";
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, tableName);
+        assertThat(count).as("Table 'fingerprints' should exist in schema 'public'").isGreaterThan(0);
+    }
 }
