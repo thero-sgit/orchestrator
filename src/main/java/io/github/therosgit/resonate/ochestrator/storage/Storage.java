@@ -1,0 +1,25 @@
+package io.github.therosgit.resonate.ochestrator.storage;
+
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+@Service
+public class Storage {
+    private S3Client s3Client;
+
+    public Storage(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
+
+    public void upload(String bucket, String key, byte[] data) {
+        s3Client.putObject(
+                PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(key)
+                        .build(),
+                RequestBody.fromBytes(data)
+        );
+    }
+}

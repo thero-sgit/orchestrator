@@ -22,6 +22,11 @@ public class UploadController {
     private final ProducerService kafkaProducerService;
     private final SongRepository songRepository;
 
+    public UploadController(ProducerService kafkaProducerService, SongRepository songRepository) {
+        this.kafkaProducerService = kafkaProducerService;
+        this.songRepository = songRepository;
+    }
+
     @PostMapping
     public ResponseEntity<?> upload(
         @RequestParam("file")

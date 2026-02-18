@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record SongUploadedEvent(
-    UUID songId,
-    String s3key,
-    Instant timeUploaded
+        UUID songId,
+        String s3key,
+        Instant timeUploaded
 ) {}
