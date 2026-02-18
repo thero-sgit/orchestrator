@@ -7,17 +7,17 @@ spring:
         access-key: noop
         secret-key: noop
 
-
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     url: jdbc:tc:postgresql:16-alpine:///rds_db
     type: com.zaxxer.hikari.HikariDataSource
 
-    jpa:
-      database-platform: org.hibernate.dialect.PostgreSQLDialect
-      hibernate:
-        ddl-auto: update
-      show-sql: true
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    generate-ddl: true
 
 services:
   rust:
