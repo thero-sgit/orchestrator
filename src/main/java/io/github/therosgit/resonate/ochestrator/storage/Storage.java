@@ -3,6 +3,8 @@ package io.github.therosgit.resonate.ochestrator.storage;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -20,6 +22,14 @@ public class Storage {
                         .key(key)
                         .build(),
                 RequestBody.fromBytes(data)
+        );
+    }
+
+    public ListObjectsResponse listObjects(String bucket) {
+        return s3Client.listObjects(
+                ListObjectsRequest.builder()
+                        .bucket(bucket)
+                        .build()
         );
     }
 }

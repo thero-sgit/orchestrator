@@ -15,18 +15,18 @@ public class Fingerprint {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private UUID songId;
+    private UUID song_id;
 
     private Integer hash;
 
-    private Integer offset;
+    private Integer time_offset;
 
     public Long getId() {
         return id;
     }
 
     public UUID getSongId() {
-        return songId;
+        return song_id;
     }
 
     public Integer getHash() {
@@ -34,24 +34,22 @@ public class Fingerprint {
     }
 
     public Integer getOffset() {
-        return offset;
+        return time_offset;
     }
 
     public void setId(Long id) {
         this.id = id;
     }
 
-    public void setSongId(UUID songId) {
-        this.songId = songId;
+    public void setSongId(UUID song_id) {
+        this.song_id = song_id;
     }
 
     public void setHash(Integer hash) {
         this.hash = hash;
     }
 
-    public void setOffset(Integer offset) {
-        this.offset = offset;
+    public void setOffset(Integer time_offset) {
+        this.time_offset = time_offset;
     }
-
-    
 }

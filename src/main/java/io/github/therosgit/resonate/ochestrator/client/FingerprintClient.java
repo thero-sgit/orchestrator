@@ -2,32 +2,25 @@ package io.github.therosgit.resonate.ochestrator.client;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestClient;
 
 @Service
 public class FingerprintClient {
-    private final WebClient webClient;
 
-    public FingerprintClient(
-        @Value("${fingerprint.service.url}")
-        String baseUrl
-    ) {
-        
-        webClient = WebClient.builder()
-            .baseUrl(baseUrl)
-            .build();
+    private final RestClient restClient;
+
+    public FingerprintClient(@Qualifier("rustRestClient") RestClient restClient) {
+        this.restClient = restClient;
     }
 
-    public Mono<List<List<Integer>>> lookup(byte[] audio) {
-        return webClient.post()
-            .uri("/lookup")
-            .bodyValue(audio)
-            .retrieve()
-            .bodyToMono(new ParameterizedTypeReference<>() {});
-    }    
+    public List<List<Integer>> lookup(byte[] audio) {
+        return restClient.post()
+                .uri("/lookup")
+                .body(audio)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<List<Integer>>>() {});
+    }
 }
