@@ -21,6 +21,7 @@ spring:
     open-in-view: false
 
   kafka:
+    bootstrap-servers: kafka:9092
     consumer:
       group-id: resonate-orchestrator
       auto-offset-reset: earliest
