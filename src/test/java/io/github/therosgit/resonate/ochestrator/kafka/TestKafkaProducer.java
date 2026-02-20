@@ -1,5 +1,6 @@
 package io.github.therosgit.resonate.ochestrator.kafka;
 
+import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
         "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}"
 })
 @EmbeddedKafka(topics = {"song_uploaded"})
-public class TestKafkaProducer {
+public class TestKafkaProducer extends IntegrationTests {
     @Autowired
     KafkaTemplate<String, SongUploadedEvent> template;
 
@@ -48,6 +49,7 @@ public class TestKafkaProducer {
             await()
                     .atMost(10, TimeUnit.SECONDS)
                     .untilAsserted(() -> {
+                        assertThat(messageReceived).isTrue();
                         assertThat(consumer.getPayload()).isNotNull();
 
                         assertThat(consumer.getPayload().songId()).isEqualTo(songId);

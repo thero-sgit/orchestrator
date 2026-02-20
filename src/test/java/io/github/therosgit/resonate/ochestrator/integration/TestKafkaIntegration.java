@@ -25,15 +25,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 @SpringBootTest
 @ActiveProfiles("test")
 @Testcontainers
-public class TestKafkaIntegration {
-    @Container
-    static private KafkaContainer kafka = new KafkaContainer("apache/kafka-native:3.8.0");
-
-    @DynamicPropertySource
-    static void overrideProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.kafka.bootstrap-servers", () -> kafka.getBootstrapServers());
-    }
-
+public class TestKafkaIntegration extends IntegrationTests {
     @Autowired
     private KafkaTemplate<String, SongUploadedEvent> template;
 

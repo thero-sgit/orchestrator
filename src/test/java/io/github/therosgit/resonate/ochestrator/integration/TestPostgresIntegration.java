@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class TestPostgresIntegration {
+public class TestPostgresIntegration extends IntegrationTests {
     @Autowired
     private DataSource dataSource;
 
@@ -52,6 +52,6 @@ public class TestPostgresIntegration {
         String tableName = "songs";
 
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, tableName);
-        assertThat(count).as("Table 'fingerprints' should exist in schema 'public'").isGreaterThan(0);
+        assertThat(count).as("Table 'songs' should exist in schema 'public'").isGreaterThan(0);
     }
 }

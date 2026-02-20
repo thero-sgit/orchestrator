@@ -22,7 +22,7 @@ public class ConsumerService {
                 Fingerprint fingerprint = new Fingerprint();
                 fingerprint.setSongId(event.songId());
                 fingerprint.setHash(pair.get(0));
-                fingerprint.setOffset(pair.get(1));
+                fingerprint.setTimeOffset(pair.get(1));
 
                 return fingerprint;
             })

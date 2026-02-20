@@ -24,16 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Testcontainers
 @ActiveProfiles("test")
 @SpringBootTest
-public class TestS3Integration {
-    @Container
-    static LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
-            .withServices("s3");
-
-    @DynamicPropertySource
-    static void overrideProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.cloud.aws.s3.endpoint", () -> localStackContainer.getEndpoint().toString());
-    }
-
+public class TestS3Integration extends IntegrationTests {
     private S3Client s3Client;
 
     @BeforeEach

@@ -8,9 +8,10 @@ spring:
         secret-key: noop
 
   datasource:
-    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:postgresql:16-alpine:///rds_db
-    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:postgresql://postgres:5432/testPostgres
+    username: testUsername
+    password: testPassword
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
