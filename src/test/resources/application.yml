@@ -19,6 +19,17 @@ spring:
     show-sql: true
     generate-ddl: true
 
+  kafka:
+    bootstrap-servers: kafka:9092
+    consumer:
+      group-id: resonate-orchestrator
+      auto-offset-reset: earliest
+    producer:
+      acks: all
+      retries: 3
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
 services:
   rust:
     base-url: http://rust-service:8081

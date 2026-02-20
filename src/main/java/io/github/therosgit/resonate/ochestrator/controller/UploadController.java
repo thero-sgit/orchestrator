@@ -46,7 +46,7 @@ public class UploadController {
             new SongUploadedEvent(
                 id,
                 song.getS3key(),
-                song.getUploadedAt()
+                song.getUploadedAt().toString()
             )
         );
 

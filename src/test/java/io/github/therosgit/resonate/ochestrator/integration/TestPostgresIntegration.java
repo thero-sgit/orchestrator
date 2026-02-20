@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class TestRdsIntegration {
+public class TestPostgresIntegration {
     @Autowired
     private DataSource dataSource;
 

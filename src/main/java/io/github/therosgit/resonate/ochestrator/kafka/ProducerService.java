@@ -5,10 +5,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ProducerService {
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final KafkaTemplate<String, SongUploadedEvent> kafkaTemplate;
 
-    public ProducerService(KafkaTemplate<String, Object> kafkaTemplate) {
+    public ProducerService(KafkaTemplate<String, SongUploadedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
+
     }
 
     public void sendSongUploaded(SongUploadedEvent event) {
