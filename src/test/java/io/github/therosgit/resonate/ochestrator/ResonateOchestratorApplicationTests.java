@@ -9,8 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 class ResonateOchestratorApplicationTests extends IntegrationTests {
 
-	@Test
-	void contextLoads() {
-	}
+
 
 }

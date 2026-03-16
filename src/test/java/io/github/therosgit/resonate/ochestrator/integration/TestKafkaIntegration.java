@@ -6,10 +6,7 @@ import io.github.therosgit.resonate.ochestrator.kafka.SongsUploadedConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -18,9 +15,6 @@ import java.util.concurrent.TimeUnit;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Testcontainers
 public class TestKafkaIntegration extends IntegrationTests {
     @Autowired
     private KafkaTemplate<String, SongUploadedEvent> template;

@@ -16,9 +16,6 @@ import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Testcontainers
-@ActiveProfiles("test")
-@SpringBootTest
 public class TestS3Integration extends IntegrationTests {
     @Test
     void shouldUpload() {

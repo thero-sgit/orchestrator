@@ -10,8 +10,6 @@ import javax.sql.DataSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("test")
-@SpringBootTest
 public class TestPostgresIntegration extends IntegrationTests {
     @Autowired
     private DataSource dataSource;
