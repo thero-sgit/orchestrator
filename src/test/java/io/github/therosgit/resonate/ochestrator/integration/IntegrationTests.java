@@ -1,5 +1,6 @@
 package io.github.therosgit.resonate.ochestrator.integration;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -7,9 +8,15 @@ import org.testcontainers.kafka.KafkaContainer;
 import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 @ActiveProfiles("test")
 public abstract class IntegrationTests {
+    protected static S3Client s3Client;
 
     // Set up Kafka
     static KafkaContainer kafkaContainer = new KafkaContainer("apache/kafka-native:3.8.0");
@@ -42,5 +49,25 @@ public abstract class IntegrationTests {
 
         // Postgres
         registry.add("spring.datasource.url", () -> postgreSQLContainer.getJdbcUrl());
+    }
+
+    @BeforeAll
+    static void setUp() {
+        s3Client = S3Client
+                .builder()
+                .endpointOverride(localStackContainer.getEndpoint())
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(
+                                AwsBasicCredentials.create(localStackContainer.getAccessKey(), localStackContainer.getSecretKey())
+                        )
+                )
+                .region(Region.of(localStackContainer.getRegion()))
+                .build();
+
+        s3Client.createBucket(
+                CreateBucketRequest.builder()
+                        .bucket("test-bucket")
+                        .build()
+        );
     }
 }

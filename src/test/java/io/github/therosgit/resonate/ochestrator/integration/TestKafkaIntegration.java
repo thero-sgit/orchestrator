@@ -31,7 +31,7 @@ public class TestKafkaIntegration extends IntegrationTests {
     private ProducerService producerService;
 
     @BeforeEach
-    void setUp() {
+    void instantiateProducer() {
         producerService = new ProducerService(template);
     }
 

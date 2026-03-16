@@ -20,28 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @SpringBootTest
 public class TestS3Integration extends IntegrationTests {
-    private S3Client s3Client;
-
-    @BeforeEach
-    void setUp() {
-        s3Client = S3Client
-                .builder()
-                .endpointOverride(localStackContainer.getEndpoint())
-                .credentialsProvider(
-                        StaticCredentialsProvider.create(
-                                AwsBasicCredentials.create(localStackContainer.getAccessKey(), localStackContainer.getSecretKey())
-                        )
-                )
-                .region(Region.of(localStackContainer.getRegion()))
-                .build();
-
-        s3Client.createBucket(
-                CreateBucketRequest.builder()
-                        .bucket("test-bucket")
-                        .build()
-        );
-    }
-
     @Test
     void shouldUpload() {
         Storage s3Storage = new Storage(s3Client);

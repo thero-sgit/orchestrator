@@ -26,6 +26,6 @@ public class TestStorage {
     void shouldUploadFile() {
         storage.upload("test-bucket", "test-key", "test-data".getBytes(StandardCharsets.UTF_8));
 
-        verify(s3Client).putObject((PutObjectRequest) any(PutObjectRequest.class), (RequestBody) any(RequestBody.class));
+        verify(s3Client).putObject(any(PutObjectRequest.class), any(RequestBody.class));
     }
 }
