@@ -1,10 +1,9 @@
-package io.github.therosgit.resonate.ochestrator.integration;
+package io.github.therosgit.resonate.ochestrator.postgres;
 
+import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
 
 import javax.sql.DataSource;
 

@@ -2,7 +2,7 @@ package io.github.therosgit.resonate.ochestrator.kafka;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.therosgit.resonate.ochestrator.services.kafka.SongUploadedEvent;
+import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 

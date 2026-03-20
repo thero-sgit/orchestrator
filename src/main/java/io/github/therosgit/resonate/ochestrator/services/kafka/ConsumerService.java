@@ -2,6 +2,8 @@ package io.github.therosgit.resonate.ochestrator.services.kafka;
 
 import java.util.List;
 
+import io.github.therosgit.resonate.ochestrator.services.kafka.events.FingerprintGeneratedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 
 import io.github.therosgit.resonate.ochestrator.domain.Fingerprint;
@@ -10,11 +12,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ConsumerService {
+    @Autowired
     private FingerprintRepository repository;
-
-    public ConsumerService(FingerprintRepository repository) {
-        this.repository = repository;
-    }
 
     @KafkaListener(topics = "fingerprint_generated", groupId = "test-group")
     public void consume(FingerprintGeneratedEvent event) {

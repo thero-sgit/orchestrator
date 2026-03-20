@@ -1,5 +1,6 @@
 package io.github.therosgit.resonate.ochestrator.services.kafka;
 
+import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
