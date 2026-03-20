@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate.ochestrator.client;
+package io.github.therosgit.resonate.ochestrator.services.client;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-public class ClientConfig {
+public class FingerprintClientConfig {
 
     @Value("${services.rust.base-url}")
     private String rustBaseUrl;

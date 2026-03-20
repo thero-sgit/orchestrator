@@ -1,5 +1,6 @@
 package io.github.therosgit.resonate.ochestrator.storage;
 
+import io.github.therosgit.resonate.ochestrator.services.core.Storage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

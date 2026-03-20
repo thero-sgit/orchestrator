@@ -1,16 +1,7 @@
 package io.github.therosgit.resonate.ochestrator.integration;
 
-import io.github.therosgit.resonate.ochestrator.storage.Storage;
-import org.junit.jupiter.api.BeforeEach;
+import io.github.therosgit.resonate.ochestrator.services.core.Storage;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 import java.nio.charset.StandardCharsets;
 

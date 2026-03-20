@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate.ochestrator.storage;
+package io.github.therosgit.resonate.ochestrator.services.core;
 
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;

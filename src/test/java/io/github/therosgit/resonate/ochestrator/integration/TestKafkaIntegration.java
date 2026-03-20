@@ -1,7 +1,7 @@
 package io.github.therosgit.resonate.ochestrator.integration;
 
-import io.github.therosgit.resonate.ochestrator.kafka.ProducerService;
-import io.github.therosgit.resonate.ochestrator.kafka.SongUploadedEvent;
+import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
+import io.github.therosgit.resonate.ochestrator.services.kafka.SongUploadedEvent;
 import io.github.therosgit.resonate.ochestrator.kafka.SongsUploadedConsumer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,6 @@ public class TestKafkaIntegration extends IntegrationTests {
     void instantiateProducer() {
         producerService = new ProducerService(template);
     }
-
     @Test
     void testSimpleSend() {
         UUID songId = UUID.randomUUID();

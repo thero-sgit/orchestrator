@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import io.github.therosgit.resonate.ochestrator.domain.Song;
-import io.github.therosgit.resonate.ochestrator.kafka.ProducerService;
-import io.github.therosgit.resonate.ochestrator.kafka.SongUploadedEvent;
+import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
+import io.github.therosgit.resonate.ochestrator.services.kafka.SongUploadedEvent;
 import io.github.therosgit.resonate.ochestrator.repository.SongRepository;
 
 @RestController

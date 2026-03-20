@@ -34,3 +34,13 @@ spring:
 services:
   rust:
     base-url: http://rust-service:8081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+      show-components: always

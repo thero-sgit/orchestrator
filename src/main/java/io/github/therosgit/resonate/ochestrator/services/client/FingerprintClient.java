@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate.ochestrator.client;
+package io.github.therosgit.resonate.ochestrator.services.client;
 
 import java.util.List;
 
@@ -9,7 +9,6 @@ import org.springframework.web.client.RestClient;
 
 @Service
 public class FingerprintClient {
-
     private final RestClient restClient;
 
     public FingerprintClient(@Qualifier("rustRestClient") RestClient restClient) {
@@ -22,5 +21,12 @@ public class FingerprintClient {
                 .body(audio)
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<List<Integer>>>() {});
+    }
+
+    public String health() {
+        return restClient.get()
+                .uri("/health")
+                .retrieve()
+                .body(String.class);
     }
 }

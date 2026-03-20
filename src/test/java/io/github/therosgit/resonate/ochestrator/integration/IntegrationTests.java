@@ -1,5 +1,8 @@
 package io.github.therosgit.resonate.ochestrator.integration;
 
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -19,6 +22,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 @SpringBootTest
 @Testcontainers
 @ActiveProfiles("test")
@@ -27,8 +34,10 @@ public abstract class IntegrationTests {
     private static Network network = Network.newNetwork();
 
     // Set up Kafka
-    static KafkaContainer kafkaContainer = new KafkaContainer("apache/kafka-native:3.8.0")
-            .withNetwork(network);
+    static final KafkaContainer kafkaContainer = new KafkaContainer("apache/kafka:3.7.0")
+            .withNetwork(network)
+            .withNetworkAliases("kafka")
+            .withListener("kafka:19092");
 
     // Set up S3
     static LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
@@ -45,7 +54,9 @@ public abstract class IntegrationTests {
     static GenericContainer<?> resonateContainer;
 
     static {
+        // start kafka container and create topics
         kafkaContainer.start();
+
         localStackContainer.start();
         postgreSQLContainer.start();
 
@@ -53,16 +64,27 @@ public abstract class IntegrationTests {
             resonateContainer = new GenericContainer<>(DockerImageName.parse("ghcr.io/thero-sgit/resonate-fingerprinter:v0.1.5"))
                     .withNetwork(network)
                     .withExposedPorts(8080)
-                    .withEnv("KAFKA_BROKERS", kafkaContainer.getBootstrapServers())
+
+                    // set kafka brokers env variable for kafka
+                    .withEnv("KAFKA_BROKERS", "kafka:19092")
+
+                    // set aws (local stack) env variable for s3
                     .withEnv("S3_BUCKET", "test-bucket")
+                    .withEnv("AWS_ACCESS_KEY_ID", localStackContainer.getAccessKey())
+                    .withEnv("AWS_SECRET_ACCESS_KEY", localStackContainer.getSecretKey())
+                    .withEnv("AWS_REGION", localStackContainer.getRegion())
+                    .withEnv("AWS_ENDPOINT_URL", "http://localstack:4566")
                     .waitingFor(Wait.forHttp("/health").forStatusCode(200));
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
+        System.out.println("Brokers: " + kafkaContainer.getBootstrapServers());
+
         try {
             resonateContainer.start();
+
         } catch (Exception e) {
             System.out.println(resonateContainer.getLogs());
             throw e;
@@ -81,10 +103,15 @@ public abstract class IntegrationTests {
 
         // Postgres
         registry.add("spring.datasource.url", () -> postgreSQLContainer.getJdbcUrl());
+
+        // Rust service
+        registry.add("services.rust.base-url", () -> "http://" + resonateContainer.getHost() + ":" + resonateContainer.getMappedPort(8080));
     }
 
     @BeforeAll
     static void setUp() {
+
+        // create s3 bucket
         s3Client = S3Client
                 .builder()
                 .endpointOverride(localStackContainer.getEndpoint())

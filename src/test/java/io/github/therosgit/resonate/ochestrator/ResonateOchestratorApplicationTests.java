@@ -1,14 +1,17 @@
 package io.github.therosgit.resonate.ochestrator;
 
 import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 
-@SpringBootTest
-@ActiveProfiles("test")
+@ImportTestcontainers(IntegrationTests.class)
 class ResonateOchestratorApplicationTests extends IntegrationTests {
 
-
+    public static void main(String[] args) {
+        SpringApplication
+                .from(ResonateOchestratorApplication::main)
+                .with(ResonateOchestratorApplicationTests.class)
+                .run(args);
+    }
 
 }

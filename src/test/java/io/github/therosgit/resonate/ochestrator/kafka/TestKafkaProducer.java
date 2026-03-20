@@ -1,6 +1,8 @@
 package io.github.therosgit.resonate.ochestrator.kafka;
 
 import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
+import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
+import io.github.therosgit.resonate.ochestrator.services.kafka.SongUploadedEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

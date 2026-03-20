@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate.ochestrator.kafka;
+package io.github.therosgit.resonate.ochestrator.services.kafka;
 
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
