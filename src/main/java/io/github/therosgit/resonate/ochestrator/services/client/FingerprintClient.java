@@ -1,9 +1,8 @@
 package io.github.therosgit.resonate.ochestrator.services.client;
 
-import java.util.List;
-
+import io.github.therosgit.resonate.ochestrator.services.communication.Package;
+import io.github.therosgit.resonate.ochestrator.services.communication.models.LookupResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -15,12 +14,13 @@ public class FingerprintClient {
         this.restClient = restClient;
     }
 
-    public List<List<Integer>> lookup(byte[] audio) {
+    public LookupResponse lookup(Package audio) {
+        // send request
         return restClient.post()
-                .uri("/lookup")
-                .body(audio)
+                .uri("/fingerprint")
+                .body(audio.audioResource())
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<List<Integer>>>() {});
+                .body(LookupResponse.class);
     }
 
     public String health() {

@@ -15,10 +15,10 @@ public class Fingerprint {
     private UUID songId;
 
     @Column(name = "hash_value")
-    private Integer hash;
+    private Long hash;
 
     @Column(name = "time_offset")
-    private Integer timeOffset;
+    private Long timeOffset;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -26,9 +26,9 @@ public class Fingerprint {
     public UUID getSongId() { return songId; }
     public void setSongId(UUID songId) { this.songId = songId; }
 
-    public Integer getHash() { return hash; }
-    public void setHash(Integer hash) { this.hash = hash; }
+    public Long getHash() { return hash; }
+    public void setHash(Long hash) { this.hash = hash; }
 
-    public Integer getTimeOffset() { return timeOffset; }
-    public void setTimeOffset(Integer timeOffset) { this.timeOffset = timeOffset; }
+    public Long getTimeOffset() { return timeOffset; }
+    public void setTimeOffset(Long timeOffset) { this.timeOffset = timeOffset; }
 }
