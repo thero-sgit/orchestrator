@@ -10,8 +10,11 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 public class StorageImplementation implements io.github.therosgit.resonate.ochestrator.services.Storage {
-    @Autowired
     private S3Client s3Client;
+
+    public StorageImplementation(S3Client s3Client) {
+        this.s3Client = s3Client;
+    }
 
     public void upload(String bucket, String key, byte[] data) {
         s3Client.putObject(

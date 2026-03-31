@@ -40,6 +40,9 @@ services:
   rust:
     base-url: http://rust-service:8081
 
+app:
+  s3-bucket-name: test-bucket
+
 management:
   endpoints:
     web:
