@@ -5,7 +5,13 @@ import java.util.UUID;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "fingerprints")
+@Table(
+        name = "fingerprints",
+        indexes = {
+            @Index(name = "idx_fingerprint_hash", columnList = "hash_value"),
+            @Index(name = "idx_fingerprint_song_id", columnList = "song_id")
+        }
+)
 public class Fingerprint {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

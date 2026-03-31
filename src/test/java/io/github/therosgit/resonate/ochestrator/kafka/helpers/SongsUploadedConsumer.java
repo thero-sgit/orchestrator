@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate.ochestrator.kafka;
+package io.github.therosgit.resonate.ochestrator.kafka.helpers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,10 +11,10 @@ import java.util.concurrent.CountDownLatch;
 @Component
 public class SongsUploadedConsumer {
     private CountDownLatch latch = new CountDownLatch(1);
-    private String payload;
+    private SongUploadedEvent payload;
 
     @KafkaListener(topics = "song_uploaded", groupId = "test-group")
-    public void consume(String payload) {
+    public void consume(SongUploadedEvent payload) {
         this.payload = payload;
         latch.countDown();
     }
@@ -24,8 +24,6 @@ public class SongsUploadedConsumer {
     }
 
     public SongUploadedEvent getPayload() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-
-        return mapper.readValue(payload, SongUploadedEvent.class);
+        return payload;
     }
 }

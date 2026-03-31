@@ -1,6 +1,7 @@
 package io.github.therosgit.resonate.ochestrator.kafka;
 
 import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
+import io.github.therosgit.resonate.ochestrator.kafka.helpers.SongsUploadedConsumer;
 import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.junit.jupiter.api.BeforeEach;
