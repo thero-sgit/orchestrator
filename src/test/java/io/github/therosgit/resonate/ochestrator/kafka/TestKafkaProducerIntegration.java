@@ -2,6 +2,7 @@ package io.github.therosgit.resonate.ochestrator.kafka;
 
 import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
 import io.github.therosgit.resonate.ochestrator.kafka.helpers.SongsUploadedConsumer;
+import io.github.therosgit.resonate.ochestrator.services.Producer;
 import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +24,7 @@ public class TestKafkaProducerIntegration extends IntegrationTests {
     @Autowired
     private SongsUploadedConsumer consumer;
 
-    private ProducerService producerService;
+    private Producer producerService;
 
     @BeforeEach
     void instantiateProducer() {

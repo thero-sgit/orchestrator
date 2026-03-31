@@ -1,4 +1,4 @@
-package io.github.therosgit.resonate.ochestrator.components;
+package io.github.therosgit.resonate.ochestrator.controller;
 
 import io.github.therosgit.resonate.ochestrator.services.Resonate;
 import org.jspecify.annotations.Nullable;
