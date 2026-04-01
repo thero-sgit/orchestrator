@@ -1,8 +1,9 @@
 package io.github.therosgit.resonate.ochestrator.services.kafka.events;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.UUID;
 
 public record SongUploadedEvent(
-        UUID songId,
-        String s3key,
-        String timeUploaded
+        @JsonProperty("song_id") UUID songId,
+        @JsonProperty("s3_key") String s3Key
 ) {}

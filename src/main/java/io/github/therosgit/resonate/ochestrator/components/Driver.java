@@ -1,6 +1,5 @@
 package io.github.therosgit.resonate.ochestrator.components;
 
-import io.github.therosgit.resonate.ochestrator.controller.exception.DriverResponse;
 import io.github.therosgit.resonate.ochestrator.controller.exception.InvalidFileException;
 import io.github.therosgit.resonate.ochestrator.domain.Song;
 import io.github.therosgit.resonate.ochestrator.repository.SongRepository;
@@ -47,7 +46,7 @@ public class Driver {
         songRepository.save(song);
 
         // publish song_uploaded event
-        SongUploadedEvent event = new SongUploadedEvent(song.getId(), song.getS3key(), song.getUploadedAt().toString());
+        SongUploadedEvent event = new SongUploadedEvent(song.getId(), song.getS3key());
         producer.sendSongUploaded(event);
     }
 

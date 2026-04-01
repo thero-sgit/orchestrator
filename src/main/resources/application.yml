@@ -23,7 +23,7 @@ spring:
   kafka:
     bootstrap-servers: kafka:9092
     consumer:
-      group-id: resonate-orchestrator
+      group-id: fingerprint-group
       auto-offset-reset: earliest
     producer:
       acks: all

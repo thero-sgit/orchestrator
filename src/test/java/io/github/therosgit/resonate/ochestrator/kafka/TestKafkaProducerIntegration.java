@@ -34,25 +34,17 @@ public class TestKafkaProducerIntegration extends IntegrationTests {
     @Test
     void testSimpleSend() {
         UUID songId = UUID.randomUUID();
-        String time = Instant.now().toString();
 
-        SongUploadedEvent event = new SongUploadedEvent(songId, "test-s3Key", time);
+        SongUploadedEvent event = new SongUploadedEvent(songId, "test-s3Key");
         producerService.sendSongUploaded(event);
 
-        try {
-            boolean messageReceived = consumer.getLatch().await(5, TimeUnit.SECONDS);
+        await()
+                .atMost(10, TimeUnit.SECONDS)
+                .untilAsserted(() -> {
+                    assertThat(consumer.getPayload()).isNotNull();
 
-            await()
-                    .atMost(10, TimeUnit.SECONDS)
-                    .untilAsserted(() -> {
-                        assertThat(consumer.getPayload()).isNotNull();
-
-                        assertThat(consumer.getPayload().songId()).isEqualTo(songId);
-                        assertThat(consumer.getPayload().s3key()).isEqualTo("test-s3Key");
-                        assertThat(consumer.getPayload().timeUploaded()).isEqualTo(time);
-                    });
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+                    assertThat(consumer.getPayload().songId()).isEqualTo(songId);
+                    assertThat(consumer.getPayload().s3Key()).isEqualTo("test-s3Key");
+                });
     }
 }

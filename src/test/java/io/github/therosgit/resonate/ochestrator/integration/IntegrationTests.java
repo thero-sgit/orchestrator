@@ -1,8 +1,11 @@
 package io.github.therosgit.resonate.ochestrator.integration;
 
+import io.github.therosgit.resonate.ochestrator.resonate.TestResonateRustService;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.NewTopic;
+import org.aspectj.lang.annotation.After;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,6 +25,8 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -42,6 +47,7 @@ public abstract class IntegrationTests {
     // Set up S3
     static LocalStackContainer localStackContainer = new LocalStackContainer(DockerImageName.parse("localstack/localstack:latest"))
             .withNetwork(network)
+            .withNetworkAliases("localstack")
             .withServices("s3");
 
     // Set up Postgres
@@ -51,11 +57,13 @@ public abstract class IntegrationTests {
             .withPassword("testPassword");
 
     // Set up Resonate (Rust Fingerprinting Service)
-    static GenericContainer<?> resonateContainer;
+    public static GenericContainer<?> resonateContainer;
 
+    // start all containers
     static {
         // start kafka container and create topics
         kafkaContainer.start();
+        createTopics();
 
         localStackContainer.start();
         postgreSQLContainer.start();
@@ -64,6 +72,7 @@ public abstract class IntegrationTests {
             resonateContainer = new GenericContainer<>(DockerImageName.parse("ghcr.io/thero-sgit/resonate-fingerprinter:v0.1.5"))
                     .withNetwork(network)
                     .withExposedPorts(8080)
+                    .withEnv("RUST_LOG", "info")
 
                     // set kafka brokers env variable for kafka
                     .withEnv("KAFKA_BROKERS", "kafka:19092")
@@ -80,8 +89,6 @@ public abstract class IntegrationTests {
             throw new RuntimeException(e);
         }
 
-        System.out.println("Brokers: " + kafkaContainer.getBootstrapServers());
-
         try {
             resonateContainer.start();
 
@@ -90,7 +97,6 @@ public abstract class IntegrationTests {
             throw e;
         }
     }
-
 
     // Override properties
     @DynamicPropertySource
@@ -108,8 +114,7 @@ public abstract class IntegrationTests {
         registry.add("services.rust.base-url", () -> "http://" + resonateContainer.getHost() + ":" + resonateContainer.getMappedPort(8080));
     }
 
-    @BeforeAll
-    static void setUp() {
+    static {
 
         // create s3 bucket
         s3Client = S3Client
@@ -128,5 +133,39 @@ public abstract class IntegrationTests {
                         .bucket("test-bucket")
                         .build()
         );
+    }
+
+    protected static byte[] getAudioBytes(String filePath) {
+        InputStream inputStream = IntegrationTests.class.getClassLoader().getResourceAsStream(filePath);
+        if (inputStream == null) {
+            try {
+                throw new IOException("File not found in resources: " + filePath);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        try {
+            return inputStream.readAllBytes();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void createTopics() {
+        try (AdminClient admin = AdminClient.create(Map.of(
+                AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaContainer.getBootstrapServers()
+        ))) {
+            List<NewTopic> topics = List.of(
+                    new NewTopic("song_uploaded", 1, (short) 1),
+                    new NewTopic("fingerprint_generated", 1, (short) 1),
+                    new NewTopic("fingerprint_chunk", 1, (short) 1)
+            );
+            try {
+                admin.createTopics(topics).all().get();
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

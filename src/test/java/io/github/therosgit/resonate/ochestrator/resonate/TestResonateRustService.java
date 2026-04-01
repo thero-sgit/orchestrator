@@ -19,30 +19,12 @@ public class TestResonateRustService extends IntegrationTests {
     @Autowired
     Resonate resonateService;
 
-    static byte[] audioBytes = getAudioBytes();
+    static byte[] audioBytes = getAudioBytes("assets/aud.mp3");
 
     @BeforeEach
     void checkResonate() {
         if ( !resonateService.isUp() ) {
             fail("Resonate health check fail!");
-        }
-    }
-
-    static byte[] getAudioBytes() {
-        String filePath = "assets/aud.mp3";
-        InputStream inputStream = TestResonateRustService.class.getClassLoader().getResourceAsStream(filePath);
-        if (inputStream == null) {
-            try {
-                throw new IOException("File not found in resources: " + filePath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        try {
-            return inputStream.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

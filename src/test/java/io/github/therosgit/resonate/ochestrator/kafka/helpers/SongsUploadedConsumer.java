@@ -13,7 +13,7 @@ public class SongsUploadedConsumer {
     private CountDownLatch latch = new CountDownLatch(1);
     private SongUploadedEvent payload;
 
-    @KafkaListener(topics = "song_uploaded", groupId = "test-group")
+    @KafkaListener(topics = "song_uploaded", groupId = "resonate-consumer-for-test-test-group")
     public void consume(SongUploadedEvent payload) {
         this.payload = payload;
         latch.countDown();

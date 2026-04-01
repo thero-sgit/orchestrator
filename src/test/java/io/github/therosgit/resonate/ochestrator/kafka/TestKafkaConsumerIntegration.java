@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 
@@ -30,11 +31,9 @@ public class TestKafkaConsumerIntegration extends IntegrationTests {
     @Autowired
     private FingerprintRepository repository;
 
-    private SongUploadedProducer resonateProducer;
-
     @BeforeEach
     void setUp() {
-        resonateProducer = new SongUploadedProducer(kafkaTemplate,chunkKafkaTemplate);
+        SongUploadedProducer resonateProducer = new SongUploadedProducer(kafkaTemplate, chunkKafkaTemplate);
 
         // send fingerprint_generated event
         String songId = UUID.randomUUID().toString();
@@ -58,6 +57,8 @@ public class TestKafkaConsumerIntegration extends IntegrationTests {
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> {
                     repository.findAll().forEach(System.out::println);
+
+                    assertThat(repository.findAll()).isNotEmpty();
                 });
     }
 

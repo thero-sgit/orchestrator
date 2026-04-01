@@ -11,7 +11,6 @@ public class ProducerService implements Producer {
 
     public ProducerService(KafkaTemplate<String, SongUploadedEvent> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-
     }
 
     public void sendSongUploaded(SongUploadedEvent event) {
