@@ -5,13 +5,10 @@ import io.github.therosgit.resonate.ochestrator.repository.FingerprintRepository
 import io.github.therosgit.resonate.ochestrator.services.core.StorageImplementation;
 import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
@@ -61,19 +58,10 @@ public class TestKafkaCommunication extends IntegrationTests {
 
         // check if Consumer received and stored fingerprints in db
         await()
-                .atMost(Duration.ofSeconds(60))
-                .pollInterval(Duration.ofMillis(500))
-                .untilAsserted(() -> assertThat(repository.findAll()).isNotEmpty());
+            .atMost(Duration.ofSeconds(60))
+            .pollInterval(Duration.ofMillis(500))
+            .untilAsserted(() -> assertThat(repository.findAll()).isNotEmpty());
 
-    }
-
-    private MultipartFile createMultipartFile() {
-        return new MockMultipartFile (
-                "aud",
-                "aud.mp3",
-                "audio/mpeg",
-                audioBytes
-        );
     }
 
 }

@@ -22,9 +22,6 @@ import java.util.UUID;
 @Component
 public class Driver {
     @Autowired
-    private Resonate resonate;
-
-    @Autowired
     private Storage storage;
 
     @Autowired
