@@ -1,13 +1,15 @@
 package io.github.therosgit.resonate.ochestrator.services.kafka.events;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public record FingerprintGeneratedEvent(
-    String songId,
-    Long total_chunks
+        @JsonProperty("song_id") String songId,
+        Long total_chunks
 ) {
     @Override
     public boolean equals(Object o) {

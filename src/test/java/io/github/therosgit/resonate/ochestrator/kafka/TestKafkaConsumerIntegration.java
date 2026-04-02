@@ -1,5 +1,6 @@
 package io.github.therosgit.resonate.ochestrator.kafka;
 
+import io.github.therosgit.resonate.ochestrator.domain.Fingerprint;
 import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
 import io.github.therosgit.resonate.ochestrator.kafka.helpers.SongUploadedProducer;
 import io.github.therosgit.resonate.ochestrator.repository.FingerprintRepository;
@@ -31,6 +32,8 @@ public class TestKafkaConsumerIntegration extends IntegrationTests {
     @Autowired
     private FingerprintRepository repository;
 
+    int size;
+
     @BeforeEach
     void setUp() {
         SongUploadedProducer resonateProducer = new SongUploadedProducer(kafkaTemplate, chunkKafkaTemplate);
@@ -39,6 +42,7 @@ public class TestKafkaConsumerIntegration extends IntegrationTests {
         String songId = UUID.randomUUID().toString();
 
         List<FingerprintChunk> chunks = getChunkPayloads(songId);
+        size = chunks.size();
         resonateProducer.sendFingerprintGenerated(
                 new FingerprintGeneratedEvent(songId, (long) chunks.size()),
                 chunks
@@ -56,9 +60,10 @@ public class TestKafkaConsumerIntegration extends IntegrationTests {
                 .atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> {
-                    repository.findAll().forEach(System.out::println);
+                    List<Fingerprint> results = repository.findAll();
+                    results.forEach(System.out::println);
 
-                    assertThat(repository.findAll()).isNotEmpty();
+                    assertThat(results).isNotEmpty();
                 });
     }
 

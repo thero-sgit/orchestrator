@@ -69,7 +69,7 @@ public abstract class IntegrationTests {
         postgreSQLContainer.start();
 
         try {
-            resonateContainer = new GenericContainer<>(DockerImageName.parse("ghcr.io/thero-sgit/resonate-fingerprinter:v0.1.5"))
+            resonateContainer = new GenericContainer<>(DockerImageName.parse("ghcr.io/thero-sgit/resonate-fingerprinter:v0.1.7"))
                     .withNetwork(network)
                     .withExposedPorts(8080)
                     .withEnv("RUST_LOG", "info")

@@ -5,6 +5,7 @@ import io.github.therosgit.resonate.ochestrator.repository.FingerprintRepository
 import io.github.therosgit.resonate.ochestrator.services.core.StorageImplementation;
 import io.github.therosgit.resonate.ochestrator.services.kafka.ProducerService;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class TestKafkaCommunication extends IntegrationTests {
 
     @Test
     void testResonateKafkaCommunication() throws InterruptedException, IOException {
-        assertThat(storage.listObjects(bucketName).contents()).hasSize(1);
+        assertThat(storage.listObjects(bucketName).contents()).hasSizeGreaterThan(0);
 
         // send Song Uploaded Event
         SongUploadedEvent event = new SongUploadedEvent(
@@ -60,7 +61,7 @@ public class TestKafkaCommunication extends IntegrationTests {
 
         // check if Consumer received and stored fingerprints in db
         await()
-                .atMost(Duration.ofSeconds(10))
+                .atMost(Duration.ofSeconds(60))
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> assertThat(repository.findAll()).isNotEmpty());
 

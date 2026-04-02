@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.therosgit.resonate.ochestrator.services.communication.models.Print;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.FingerprintGeneratedEvent;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.payload.FingerprintChunk;
@@ -19,65 +21,38 @@ public class ConsumerService {
     @Autowired
     private FingerprintRepository repository;
 
-    private final ConcurrentHashMap<String, FingerprintGeneratedEvent> activeEvents = new ConcurrentHashMap<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final ConcurrentHashMap<String, List<FingerprintChunk>> buffers = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, CompletableFuture<Void>> futures = new ConcurrentHashMap<>();
 
 
     @KafkaListener(topics = "fingerprint_generated", groupId = "${spring.kafka.consumer.group-id}")
-    public void consume(FingerprintGeneratedEvent event) {
-        String songId = event.songId();
+    public void consume(String payload) throws JsonProcessingException {
+        FingerprintGeneratedEvent event = objectMapper.readValue(payload, FingerprintGeneratedEvent.class);
         System.out.println(">>> Event Received: " + event.songId());
 
-        // add event to active events
-        if (activeEvents.putIfAbsent(songId, event) != null) return;
-
-        // create new empty buffer
-        buffers.put(songId, Collections.synchronizedList(new ArrayList<>()));
-
-        // add new future to futures
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        futures.put(songId, future);
+        // get song id
+        String songId = event.songId();
 
         // collect and save chunks
-        future.thenRun(() -> {
-            List<FingerprintChunk> chunks = buffers.get(songId);
-            List<Fingerprint> fingerprints = flattenChunks(songId, chunks);
-
-            // persist chunks
-            repository.saveAll(fingerprints);
-
-            // clean up
-            buffers.remove(songId);
-            futures.remove(songId);
-        });
+        List<FingerprintChunk> chunks = buffers.get(event.songId());
+        List<Fingerprint> flattenedChunks = flattenChunks(songId, chunks);
+        repository.saveAll(flattenedChunks);
     }
 
     @KafkaListener(topics = "fingerprint_chunk", groupId = "${spring.kafka.consumer.group-id}")
-    public void collectChunk(FingerprintChunk chunk) {
-        String songId = chunk.song_id();
+    public void collectChunks(String payload) throws JsonProcessingException {
+        // deserialize
+        FingerprintChunk chunk = objectMapper.readValue(payload, FingerprintChunk.class);
         System.out.println(">>> Chunk Received: " + chunk.song_id());
 
-        // ignore chunks for songs we're not tracking
-        if ( !activeEvents.containsKey(songId) ) return;
-        FingerprintGeneratedEvent event = activeEvents.get(songId);
+        String songId = chunk.song_id();
 
-        // get buffer
+        // create buffer list if not exists
+        buffers.computeIfAbsent(songId, k -> Collections.synchronizedList(new ArrayList<>()));
+
+        // get buffer and add chunk to the buffer
         List<FingerprintChunk> buffer = buffers.get(songId);
-
-        // clean up after all chunks collected
-        synchronized (buffer) {
-            // add chunk to buffer
-            buffer.add(chunk);
-
-            if (buffer.size() == event.total_chunks()) {
-                buffer.sort(Comparator.comparingInt(FingerprintChunk::index));
-                activeEvents.remove(songId);
-
-                // triggers thenRun
-                futures.get(songId).complete(null);
-            }
-        }
+        buffer.add(chunk);
     }
 
     private List<Fingerprint> flattenChunks(String songId, List<FingerprintChunk> chunks) {
