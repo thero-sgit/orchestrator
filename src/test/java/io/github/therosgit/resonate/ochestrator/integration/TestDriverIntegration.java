@@ -24,7 +24,7 @@ public class TestDriverIntegration extends IntegrationTests {
     @Autowired
     private SongRepository songRepository;
 
-    private static final byte[] audioBytes = getAudioBytes("assets/aud.mp3");
+    private static final byte[] audioBytes = getAudioBytes("assets/001924.mp3");
 
     @Test
     void testUploadPipeline() throws IOException {
@@ -39,7 +39,6 @@ public class TestDriverIntegration extends IntegrationTests {
             .untilAsserted(() -> {
                 assertThat(fingerprintRepository.findAll()).isNotEmpty();
                 assertThat(songRepository.findAll()).isNotEmpty();
-
             });
     }
 

@@ -61,7 +61,6 @@ public class TestKafkaConsumerIntegration extends IntegrationTests {
                 .pollInterval(Duration.ofMillis(500))
                 .untilAsserted(() -> {
                     List<Fingerprint> results = repository.findAll();
-                    results.forEach(System.out::println);
 
                     assertThat(results).isNotEmpty();
                 });

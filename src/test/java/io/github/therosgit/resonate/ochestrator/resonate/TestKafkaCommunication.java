@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.UUID;
 
@@ -43,7 +42,7 @@ public class TestKafkaCommunication extends IntegrationTests {
     }
 
     @Test
-    void testResonateKafkaCommunication() throws InterruptedException, IOException {
+    void testResonateKafkaCommunication() throws InterruptedException {
         assertThat(storage.listObjects(bucketName).contents()).hasSizeGreaterThan(0);
 
         // send Song Uploaded Event

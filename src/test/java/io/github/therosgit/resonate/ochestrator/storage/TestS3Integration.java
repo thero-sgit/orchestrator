@@ -1,6 +1,7 @@
 package io.github.therosgit.resonate.ochestrator.storage;
 
 import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
+import io.github.therosgit.resonate.ochestrator.services.Storage;
 import io.github.therosgit.resonate.ochestrator.services.core.StorageImplementation;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,17 @@ public class TestS3Integration extends IntegrationTests {
 
     @Test
     void shouldUpload() {
-        StorageImplementation s3Storage = new StorageImplementation(s3Client);
+        Storage s3Storage = new StorageImplementation(s3Client);
+        String key = "test-key";
+        byte[] data = "data".getBytes(StandardCharsets.UTF_8);
 
         s3Storage.upload(
                 bucketName,
-                "test-key",
-                "data".getBytes(StandardCharsets.UTF_8)
+                key,
+                data
         );
 
-        assertThat(s3Storage.listObjects("test-bucket").contents()).hasSize(1);
+        assertThat(s3Storage.listObjects(bucketName).contents()).isNotEmpty();
+        assertThat(s3Storage.download(bucketName, key)).isEqualTo(data);
     }
 }
