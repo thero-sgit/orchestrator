@@ -1,11 +1,19 @@
 package io.github.therosgit.resonate.ochestrator.components;
 
+import io.github.therosgit.resonate.ochestrator.components.entities.SongEntity;
+import io.github.therosgit.resonate.ochestrator.components.entities.SongMatch;
 import io.github.therosgit.resonate.ochestrator.controller.exception.InvalidFileException;
+import io.github.therosgit.resonate.ochestrator.domain.Fingerprint;
 import io.github.therosgit.resonate.ochestrator.domain.Song;
+import io.github.therosgit.resonate.ochestrator.repository.FingerprintRepository;
 import io.github.therosgit.resonate.ochestrator.repository.SongRepository;
 import io.github.therosgit.resonate.ochestrator.services.Producer;
 import io.github.therosgit.resonate.ochestrator.services.Resonate;
 import io.github.therosgit.resonate.ochestrator.services.Storage;
+import io.github.therosgit.resonate.ochestrator.services.communication.Package;
+import io.github.therosgit.resonate.ochestrator.services.communication.implementations.AudioPackage;
+import io.github.therosgit.resonate.ochestrator.services.communication.models.LookupResponse;
+import io.github.therosgit.resonate.ochestrator.services.communication.models.Print;
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
@@ -17,10 +25,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class Driver {
+    @Autowired
+    private Resonate resonate;
+
     @Autowired
     private Storage storage;
 
@@ -29,6 +41,9 @@ public class Driver {
 
     @Autowired
     SongRepository songRepository;
+
+    @Autowired
+    FingerprintRepository fingerprintRepository;
 
     @Value("${app.s3-bucket-name}")
     private String bucketName;
@@ -45,6 +60,73 @@ public class Driver {
         // publish song_uploaded event
         SongUploadedEvent event = new SongUploadedEvent(song.getId(), song.getS3key());
         producer.sendSongUploaded(event);
+    }
+
+    public Song lookup(MultipartFile audio) throws IOException {
+        Package audioPackage = new AudioPackage(audio.getBytes());
+
+        // send song for fingerprinting
+        LookupResponse response = resonate.lookup(audioPackage);
+        List<Print> prints = response.fingerprints();
+
+        List<Long> hashes = prints.stream()
+                .map(Print::hash)
+                .toList();
+
+        // find matches
+        List<Fingerprint> queriedMatches = fingerprintRepository.findByHashIn(hashes);
+        List<SongMatch> matches = collectMatches(queriedMatches, prints);
+
+        return bestMatch(matches);
+    }
+
+    private Song bestMatch(List<SongMatch> matches) {
+        Map<UUID, Long> voteMap = new HashMap<>();
+
+        // create vote map
+        for (SongMatch match: matches) {
+            voteMap.merge(match.id(), 1L, Long::sum);
+        }
+
+        // get elected song id
+        UUID electedId = highestCount(voteMap);
+
+        // return matched song if found
+        if (electedId != null) {
+            Optional<Song> songMatched = songRepository.findById(electedId);
+            return songMatched.orElse(null);
+        }
+
+        return null;
+    }
+
+    private UUID highestCount(Map<UUID, Long> entries) {
+        Map.Entry<UUID, Long> highest = null;
+
+        // find highest voted
+        for (Map.Entry<UUID, Long> entry: entries.entrySet()) {
+            if (highest == null || highest.getValue() < entry.getValue()) {
+                highest = entry;
+            }
+        }
+
+        return highest == null ? null : highest.getKey();
+    }
+
+    private List<SongMatch> collectMatches(List<Fingerprint> queriedMatches, List<Print> fingerprints) {
+        List<SongMatch> matches = new ArrayList<>();
+
+        for (Print fingetprint: fingerprints) {
+            for (Fingerprint match: queriedMatches) {
+                matches.add(
+                        new SongMatch(
+                                match.getSongId(), match.getTimeOffset() - fingetprint.frameIndex()
+                        )
+                );
+            }
+        }
+
+        return matches;
     }
 
     private Song toSong(MultipartFile audio) throws IOException {
