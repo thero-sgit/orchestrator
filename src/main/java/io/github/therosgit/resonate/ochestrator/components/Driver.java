@@ -1,6 +1,5 @@
 package io.github.therosgit.resonate.ochestrator.components;
 
-import io.github.therosgit.resonate.ochestrator.components.entities.SongEntity;
 import io.github.therosgit.resonate.ochestrator.components.entities.SongMatch;
 import io.github.therosgit.resonate.ochestrator.controller.exception.InvalidFileException;
 import io.github.therosgit.resonate.ochestrator.domain.Fingerprint;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class Driver {

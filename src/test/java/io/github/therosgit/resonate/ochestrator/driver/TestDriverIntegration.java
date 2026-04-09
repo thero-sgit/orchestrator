@@ -1,6 +1,7 @@
-package io.github.therosgit.resonate.ochestrator.integration;
+package io.github.therosgit.resonate.ochestrator.driver;
 
 import io.github.therosgit.resonate.ochestrator.components.Driver;
+import io.github.therosgit.resonate.ochestrator.integration.IntegrationTests;
 import io.github.therosgit.resonate.ochestrator.repository.FingerprintRepository;
 import io.github.therosgit.resonate.ochestrator.repository.SongRepository;
 import org.junit.jupiter.api.Test;
