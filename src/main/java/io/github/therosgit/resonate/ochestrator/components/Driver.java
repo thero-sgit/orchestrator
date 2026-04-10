@@ -16,6 +16,8 @@ import io.github.therosgit.resonate.ochestrator.services.communication.models.Pr
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
+import org.hibernate.query.TypedParameterValue;
+import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -61,7 +63,9 @@ public class Driver {
     }
 
     public Song lookup(MultipartFile audio) throws IOException {
-        Package audioPackage = new AudioPackage(audio.getBytes());
+        byte[] audioBytes = Arrays.copyOfRange(audio.getBytes(), 0, 100000);
+
+        Package audioPackage = new AudioPackage(audioBytes);
 
         // send song for fingerprinting
         LookupResponse response = resonate.lookup(audioPackage);
@@ -71,8 +75,17 @@ public class Driver {
                 .map(Print::hash)
                 .toList();
 
+        if (hashes.isEmpty()) {
+            throw new RuntimeException("queriedMatches is empty!");
+        }
+
         // find matches
         List<Fingerprint> queriedMatches = fingerprintRepository.findByHashIn(hashes);
+
+        if (queriedMatches.isEmpty()) {
+            throw new RuntimeException("queriedMatches is empty!");
+        }
+
         List<SongMatch> matches = collectMatches(queriedMatches, prints);
 
         return bestMatch(matches);
@@ -136,6 +149,7 @@ public class Driver {
         Instant time = Instant.now();
 
         Song song = new Song();
+        song.setTitle(title.split("\\.")[0]);
         song.setId(id);
         song.setS3key(s3Key);
         song.setUploadedAt(time);

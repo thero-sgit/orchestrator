@@ -29,7 +29,7 @@ public class TestDriverIntegration extends IntegrationTests {
 
     @Test
     void testUploadPipeline() throws IOException {
-        driver.handleUpload(createMultipartFile());
+        driver.handleUpload(createMultipartFile(audioBytes, "aud"));
 
         assertThat(resonateContainer.isRunning()).isTrue();
 
@@ -43,10 +43,10 @@ public class TestDriverIntegration extends IntegrationTests {
             });
     }
 
-    private MultipartFile createMultipartFile() {
+    public static MultipartFile createMultipartFile(byte[] audioBytes, String name) {
         return new MockMultipartFile(
                 "aud",
-                "aud.mp3",
+                name + ".mp3",
                 "audio/mpeg",
                 audioBytes
         );
