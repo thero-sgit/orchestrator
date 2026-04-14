@@ -55,7 +55,7 @@ public class TestVotingIntegration extends IntegrationTests {
                 .untilAsserted(() -> {
                     assertThat(fingerprintRepository.findAll()).isNotEmpty();
 
-                    String name = "001736";
+                    String name = "001930";
                     byte[] bytes = getAudioBytes("assets/voting/001/" + name + ".mp3");
 
                     Song identifiedSong = driver.lookup(

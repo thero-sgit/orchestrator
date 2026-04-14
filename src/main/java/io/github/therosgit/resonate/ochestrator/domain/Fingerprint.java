@@ -26,9 +26,6 @@ public class Fingerprint {
     @Column(name = "time_offset")
     private Long timeOffset;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
     public UUID getSongId() { return songId; }
     public void setSongId(UUID songId) { this.songId = songId; }
 

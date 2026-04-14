@@ -63,9 +63,7 @@ public class Driver {
     }
 
     public Song lookup(MultipartFile audio) throws IOException {
-        byte[] audioBytes = Arrays.copyOfRange(audio.getBytes(), 0, 100000);
-
-        Package audioPackage = new AudioPackage(audioBytes);
+        Package audioPackage = new AudioPackage(audio.getBytes());
 
         // send song for fingerprinting
         LookupResponse response = resonate.lookup(audioPackage);
@@ -75,20 +73,26 @@ public class Driver {
                 .map(Print::hash)
                 .toList();
 
-        if (hashes.isEmpty()) {
-            throw new RuntimeException("queriedMatches is empty!");
-        }
-
         // find matches
-        List<Fingerprint> queriedMatches = fingerprintRepository.findByHashIn(hashes);
-
-        if (queriedMatches.isEmpty()) {
-            throw new RuntimeException("queriedMatches is empty!");
-        }
+        List<Fingerprint> queriedMatches = partitionHashes(hashes, 30000) // PreparedStatement limit
+                .stream().flatMap(
+                        chunk -> fingerprintRepository.findByHashIn(chunk).stream()
+                )
+                .toList();
 
         List<SongMatch> matches = collectMatches(queriedMatches, prints);
 
         return bestMatch(matches);
+    }
+
+    private List<List<Long>> partitionHashes(List<Long> hashes, int chunkSize) {
+        List<List<Long>> chunks = new ArrayList<>();
+
+        for (int index = 0; index < hashes.size(); index += chunkSize) {
+            chunks.add(hashes.subList(index, Math.min(index + chunkSize, hashes.size())));
+        }
+
+        return chunks;
     }
 
     private Song bestMatch(List<SongMatch> matches) {
