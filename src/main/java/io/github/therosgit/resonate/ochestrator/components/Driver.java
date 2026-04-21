@@ -65,7 +65,6 @@ public class Driver {
     public Song lookup(MultipartFile audio) throws IOException {
         Package audioPackage = new AudioPackage(audio.getBytes());
 
-        // send song for fingerprinting
         LookupResponse response = resonate.lookup(audioPackage);
         List<Print> prints = response.fingerprints();
 
@@ -73,16 +72,51 @@ public class Driver {
                 .map(Print::hash)
                 .toList();
 
-        // find matches
-        List<Fingerprint> queriedMatches = partitionHashes(hashes, 30000) // PreparedStatement limit
+        List<Fingerprint> queriedMatches = partitionHashes(hashes, 30000)
                 .stream().flatMap(
                         chunk -> fingerprintRepository.findByHashIn(chunk).stream()
                 )
                 .toList();
 
-        List<SongMatch> matches = collectMatches(queriedMatches, prints);
+        return bestMatch(queriedMatches, prints);
+    }
 
-        return bestMatch(matches);
+    // Vote on (songId, delta) pairs — song with the most consistent delta wins
+    private Song bestMatch(List<Fingerprint> queriedMatches, List<Print> prints) {
+        // (songId, delta) -> vote count
+        Map<UUID, Map<Long, Long>> voteMap = new HashMap<>();
+
+        for (Print print : prints) {
+            for (Fingerprint match : queriedMatches) {
+                long delta = match.getTimeOffset() - print.frameIndex();
+
+                voteMap
+                        .computeIfAbsent(match.getSongId(), id -> new HashMap<>())
+                        .merge(delta, 1L, Long::sum);
+            }
+        }
+
+        // for each song, find its best delta vote count
+        UUID electedId = null;
+        long highestVotes = 0;
+
+        for (Map.Entry<UUID, Map<Long, Long>> entry : voteMap.entrySet()) {
+            long bestDeltaVotes = entry.getValue().values().stream()
+                    .mapToLong(Long::longValue)
+                    .max()
+                    .orElse(0);
+
+            if (bestDeltaVotes > highestVotes) {
+                highestVotes = bestDeltaVotes;
+                electedId = entry.getKey();
+            }
+        }
+
+        if (electedId != null) {
+            return songRepository.findById(electedId).orElse(null);
+        }
+
+        return null;
     }
 
     private List<List<Long>> partitionHashes(List<Long> hashes, int chunkSize) {
@@ -93,55 +127,6 @@ public class Driver {
         }
 
         return chunks;
-    }
-
-    private Song bestMatch(List<SongMatch> matches) {
-        Map<UUID, Long> voteMap = new HashMap<>();
-
-        // create vote map
-        for (SongMatch match: matches) {
-            voteMap.merge(match.id(), 1L, Long::sum);
-        }
-
-        // get elected song id
-        UUID electedId = highestCount(voteMap);
-
-        // return matched song if found
-        if (electedId != null) {
-            Optional<Song> songMatched = songRepository.findById(electedId);
-            return songMatched.orElse(null);
-        }
-
-        return null;
-    }
-
-    private UUID highestCount(Map<UUID, Long> entries) {
-        Map.Entry<UUID, Long> highest = null;
-
-        // find highest voted
-        for (Map.Entry<UUID, Long> entry: entries.entrySet()) {
-            if (highest == null || highest.getValue() < entry.getValue()) {
-                highest = entry;
-            }
-        }
-
-        return highest == null ? null : highest.getKey();
-    }
-
-    private List<SongMatch> collectMatches(List<Fingerprint> queriedMatches, List<Print> fingerprints) {
-        List<SongMatch> matches = new ArrayList<>();
-
-        for (Print fingetprint: fingerprints) {
-            for (Fingerprint match: queriedMatches) {
-                matches.add(
-                        new SongMatch(
-                                match.getSongId(), match.getTimeOffset() - fingetprint.frameIndex()
-                        )
-                );
-            }
-        }
-
-        return matches;
     }
 
     private Song toSong(MultipartFile audio) throws IOException {
