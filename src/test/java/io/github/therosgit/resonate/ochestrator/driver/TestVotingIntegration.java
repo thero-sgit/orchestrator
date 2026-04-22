@@ -55,8 +55,7 @@ public class TestVotingIntegration extends IntegrationTests {
     @Test
     void testCanIdentifySong() throws IOException, URISyntaxException {
         String name = "001930";
-        byte[] bytes = getAudioBytes("assets/voting/001/" + name + ".mp3");
-        bytes = Arrays.copyOfRange(bytes, (bytes.length - 1) / 2, bytes.length - 1 );
+        byte[] bytes = getAudioBytes("assets/" + name + "_5s.mp3");
 
         System.out.println("Bytes ready for lookup!");
         System.out.println("Looking up!");

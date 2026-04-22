@@ -2,8 +2,8 @@ package io.github.therosgit.resonate.ochestrator.components.entities;
 
 import java.util.UUID;
 
-public record SongMatch(
+public record VoteKey(
         UUID id,
-        Long index
+        Long delta
 ) {
 }

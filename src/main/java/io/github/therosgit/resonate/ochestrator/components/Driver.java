@@ -1,6 +1,6 @@
 package io.github.therosgit.resonate.ochestrator.components;
 
-import io.github.therosgit.resonate.ochestrator.components.entities.SongMatch;
+import io.github.therosgit.resonate.ochestrator.components.entities.VoteKey;
 import io.github.therosgit.resonate.ochestrator.controller.exception.InvalidFileException;
 import io.github.therosgit.resonate.ochestrator.domain.Fingerprint;
 import io.github.therosgit.resonate.ochestrator.domain.Song;
@@ -16,8 +16,6 @@ import io.github.therosgit.resonate.ochestrator.services.communication.models.Pr
 import io.github.therosgit.resonate.ochestrator.services.kafka.events.SongUploadedEvent;
 import org.apache.tika.Tika;
 import org.apache.tika.metadata.Metadata;
-import org.hibernate.query.TypedParameterValue;
-import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -72,51 +70,65 @@ public class Driver {
                 .map(Print::hash)
                 .toList();
 
+        System.out.println("Querying..");
         List<Fingerprint> queriedMatches = partitionHashes(hashes, 30000)
                 .stream().flatMap(
                         chunk -> fingerprintRepository.findByHashIn(chunk).stream()
                 )
                 .toList();
 
+        System.out.println("Finding best match..");
         return bestMatch(queriedMatches, prints);
     }
 
     // Vote on (songId, delta) pairs — song with the most consistent delta wins
     private Song bestMatch(List<Fingerprint> queriedMatches, List<Print> prints) {
-        // (songId, delta) -> vote count
-        Map<UUID, Map<Long, Long>> voteMap = new HashMap<>();
 
-        for (Print print : prints) {
-            for (Fingerprint match : queriedMatches) {
-                long delta = match.getTimeOffset() - print.frameIndex();
-
-                voteMap
-                        .computeIfAbsent(match.getSongId(), id -> new HashMap<>())
-                        .merge(delta, 1L, Long::sum);
-            }
-        }
+        // get vote map
+        Map<VoteKey, Long> voteMap = voteMap(queriedMatches, prints);
 
         // for each song, find its best delta vote count
         UUID electedId = null;
         long highestVotes = 0;
 
-        for (Map.Entry<UUID, Map<Long, Long>> entry : voteMap.entrySet()) {
-            long bestDeltaVotes = entry.getValue().values().stream()
-                    .mapToLong(Long::longValue)
-                    .max()
-                    .orElse(0);
+        for (Map.Entry<VoteKey, Long> entry : voteMap.entrySet()) {
+            long bestDeltaVotes = entry.getValue();
 
             if (bestDeltaVotes > highestVotes) {
                 highestVotes = bestDeltaVotes;
-                electedId = entry.getKey();
+                electedId = entry.getKey().id();
             }
         }
 
+        System.out.println("Step 2 done.");
+
         if (electedId != null) {
+            System.out.println("Finding song in song repo..");
             return songRepository.findById(electedId).orElse(null);
         }
 
         return null;
+    }
+
+    private Map<VoteKey, Long> voteMap(List<Fingerprint> queriedMatches, List<Print> prints) {
+        // (songId, delta) -> vote count
+        Map<VoteKey, Long> voteMap = new HashMap<>();
+
+
+        for (Print print : prints) {
+            for (Fingerprint match : queriedMatches) {
+                long delta = match.getTimeOffset() - print.frameIndex();
+
+                voteMap.merge(
+                        new VoteKey(match.getSongId(), delta),
+                        1L,
+                        Long::sum
+                );
+            }
+        }
+
+        System.out.println("Step 1 done.");
+        return voteMap;
     }
 
     private List<List<Long>> partitionHashes(List<Long> hashes, int chunkSize) {
